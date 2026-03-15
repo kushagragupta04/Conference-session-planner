@@ -1,0 +1,39 @@
+# dependencies
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+db_status.txt
+force_update_db.js
+debug_db.js
+dump_db.js
+check_conf_dates.js
+check_db.js
+probe_db.js
+trash/
