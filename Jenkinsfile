@@ -1,7 +1,6 @@
 pipeline {
 agent any
 
-```
 environment {
     DOCKER_IMAGE_BACKEND = "session-planner-backend"
     DOCKER_IMAGE_FRONTEND = "session-planner-frontend"
@@ -21,7 +20,6 @@ stages {
             dir('backend') {
                 bat 'npm install'
                 bat 'npm audit'
-                echo "Backend dependencies installed successfully."
             }
         }
     }
@@ -32,24 +30,20 @@ stages {
                 bat 'npm install'
                 bat 'npm run build'
                 bat 'npm audit'
-                echo "Frontend dependencies installed and built."
             }
         }
     }
 
     stage('Docker: Build Images') {
         steps {
-            script {
-                bat "docker build -t ${DOCKER_IMAGE_BACKEND}:${VERSION} ./backend"
-                bat "docker build -t ${DOCKER_IMAGE_FRONTEND}:${VERSION} ./frontend"
-            }
+            bat "docker build -t ${DOCKER_IMAGE_BACKEND}:${VERSION} ./backend"
+            bat "docker build -t ${DOCKER_IMAGE_FRONTEND}:${VERSION} ./frontend"
         }
     }
 
     stage('Infra: Validate Compose') {
         steps {
             bat 'docker compose config'
-            echo "Docker Compose file validated."
         }
     }
 
@@ -63,16 +57,7 @@ stages {
 
 post {
     always {
-        echo "Cleaning up workspace..."
         cleanWs()
     }
-    success {
-        echo "Pipeline executed successfully!"
-    }
-    failure {
-        echo "Pipeline failed. Please check logs."
-    }
 }
-```
-
 }
