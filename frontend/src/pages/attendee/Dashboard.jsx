@@ -35,45 +35,56 @@ const AttendeeDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const [scheduleRes, bookmarksRes, sessionsRes, notifsRes, recsRes] = await Promise.all([
-          axios.get('/api/attendee-portal/schedule').catch(() => ({ data: [] })),
-          axios.get('/api/attendee-portal/bookmarks').catch(() => ({ data: [] })),
-          axios.get('/api/attendee-portal/sessions').catch(() => ({ data: [] })),
-          axios.get('/api/notifications').catch(() => ({ data: [] })),
-          axios.get('/api/attendee-portal/recommendations').catch(() => ({ data: [] })),
-        ]);
-
-        const schedule = Array.isArray(scheduleRes.data) ? scheduleRes.data : [];
-        const bookmarks = Array.isArray(bookmarksRes.data) ? bookmarksRes.data : [];
-        const sessions = Array.isArray(sessionsRes.data) ? sessionsRes.data : [];
-        const notifs = Array.isArray(notifsRes.data) ? notifsRes.data : [];
-        const recs = Array.isArray(recsRes.data) ? recsRes.data : [];
-
-        setStats({
-          confirmed: schedule.filter(s => s.status === 'CONFIRMED').length,
-          waitlisted: schedule.filter(s => s.status === 'WAITLISTED').length,
-          bookmarks: bookmarks.length,
-          available: sessions.length,
-        });
-
-        const now = new Date();
-        const upcomingItems = schedule
-          .filter(s => s.status === 'CONFIRMED' && s.start_time && new Date(s.start_time) > now)
-          .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
-          .slice(0, 3);
-        setUpcoming(upcomingItems);
-        setNotifications(notifs.slice(0, 3));
-        setRecommended(recs.slice(0, 3));
-      } catch (err) {
-        console.error('Dashboard fetch error', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchAll();
   }, []);
+
+  const fetchAll = async () => {
+    setLoading(true);
+    try {
+      const [scheduleRes, bookmarksRes, sessionsRes, notifsRes, recsRes] = await Promise.all([
+        axios.get('/api/attendee-portal/schedule').catch(() => ({ data: [] })),
+        axios.get('/api/attendee-portal/bookmarks').catch(() => ({ data: [] })),
+        axios.get('/api/attendee-portal/sessions').catch(() => ({ data: [] })),
+        axios.get('/api/notifications').catch(() => ({ data: [] })),
+        axios.get('/api/attendee-portal/recommendations').catch(() => ({ data: [] })),
+      ]);
+
+      const schedule = Array.isArray(scheduleRes.data) ? scheduleRes.data : [];
+      const bookmarks = Array.isArray(bookmarksRes.data) ? bookmarksRes.data : [];
+      const sessions = Array.isArray(sessionsRes.data) ? sessionsRes.data : [];
+      const notifs = Array.isArray(notifsRes.data) ? notifsRes.data : [];
+      const recs = Array.isArray(recsRes.data) ? recsRes.data : [];
+
+      setStats({
+        confirmed: schedule.filter(s => s.status === 'CONFIRMED').length,
+        waitlisted: schedule.filter(s => s.status === 'WAITLISTED').length,
+        bookmarks: bookmarks.length,
+        available: sessions.length,
+      });
+
+      const now = new Date();
+      const upcomingItems = schedule
+        .filter(s => s.status === 'CONFIRMED' && s.start_time && new Date(s.start_time) > now)
+        .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
+        .slice(0, 3);
+      setUpcoming(upcomingItems);
+      setNotifications(notifs.slice(0, 3));
+      setRecommended(recs.slice(0, 3));
+    } catch (err) {
+      console.error('Dashboard fetch error', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAttend = async (sessionId) => {
+    try {
+      await axios.post('/api/attendee-portal/register', { session_id: sessionId });
+      fetchAll(); // Refresh stats and lists
+    } catch (err) {
+      alert(err.response?.data?.message || 'Action failed');
+    }
+  };
 
   const formatTime = (iso) => {
     if (!iso) return 'TBA';
@@ -232,12 +243,12 @@ const AttendeeDashboard = () => {
                 </span>
                 <h3 className="font-bold text-slate-900 mt-3 leading-snug line-clamp-2">{session.title}</h3>
                 <p className="text-slate-500 text-xs font-medium mt-2 line-clamp-2">{session.description}</p>
-                <Link
-                  to="/attendee"
+                <button
+                  onClick={() => handleAttend(session.id)}
                   className="inline-flex items-center gap-1 text-blue-600 font-black text-xs uppercase mt-4 hover:underline"
                 >
-                  Register <ArrowRightIcon className="h-3 w-3" />
-                </Link>
+                  Attend Now <ArrowRightIcon className="h-3 w-3" />
+                </button>
               </div>
             ))}
           </div>

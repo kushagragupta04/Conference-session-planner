@@ -170,7 +170,7 @@ const SessionPanel = ({ session, onClose, onBookmark, onRegister, isRegistered, 
               className={`flex-1 py-3 rounded-2xl font-black text-sm transition-all shadow-lg active:scale-95 ${isRegistered ? 'bg-emerald-600 text-white cursor-default' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
               disabled={isRegistered}
             >
-              {isRegistered ? '✓ Registered' : isFull ? 'Join Waitlist' : 'Register Now'}
+              {isRegistered ? '✓ Attending' : isFull ? 'Join Waitlist' : 'Attend Session'}
             </button>
           </div>
         </div>
@@ -228,7 +228,7 @@ const Discover = () => {
       const res = await axios.post('/api/attendee-portal/register', { session_id: sessionId });
       alert(res.data.status === 'WAITLISTED' 
         ? '⏳ Session is full! You\'ve been added to the waitlist.' 
-        : '✅ Registration successful!');
+        : '✅ You are now attending this session!');
       setRegisteredIds(prev => new Set([...prev, sessionId]));
       fetchData();
     } catch (err) {
@@ -367,14 +367,14 @@ const Discover = () => {
                 <div className="px-5 pb-5">
                   {isRegistered ? (
                     <div className="w-full py-2 bg-emerald-50 text-emerald-700 rounded-xl font-black text-xs text-center flex items-center justify-center gap-2">
-                      <CheckCircleIcon className="h-4 w-4" /> Registered
+                      <CheckCircleIcon className="h-4 w-4" /> Attending
                     </div>
                   ) : (
                     <button
                       onClick={e => { e.stopPropagation(); handleRegister(session.id); }}
                       className={`w-full py-2.5 rounded-xl font-black text-sm transition-all active:scale-95 ${isFull ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'}`}
                     >
-                      {isFull ? 'Join Waitlist' : 'Register'}
+                      {isFull ? 'Join Waitlist' : 'Attend'}
                     </button>
                   )}
                 </div>

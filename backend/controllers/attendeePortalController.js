@@ -17,7 +17,7 @@ const discoverSessions = async (req, res) => {
       LEFT JOIN session_schedule sch ON s.id = sch.session_id
       LEFT JOIN rooms rm ON sch.room_id = rm.id
       LEFT JOIN venues v ON rm.venue_id = v.id
-      WHERE s.status = 'SCHEDULED'
+      WHERE (s.status = 'SCHEDULED' OR s.status = 'APPROVED')
     `;
     const params = [];
 
